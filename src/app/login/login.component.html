@@ -1,0 +1,39 @@
+<html>
+    <div class="loginx">
+      <div class="menu">
+        <form class="form-signin" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+          <header class="menuheader"><br><h2 class="IS"><b>INICIAR SESION</b></h2>
+
+          </header>
+      <p class="bienvenida"><b class="h">¡HOLA!</b> Este es el gestor <b class="C">C</b><b class="bb">bb</b> para guias de despacho
+        ingrese sus datos, si no posee credenciales, póngase en contacto con un administrador.</p>
+      
+      <label for="inputEmail" class="sr-only">Correo electronico</label>
+      <input type="text" class="form-control" name="email" [(ngModel)]="form.email" #email="ngModel" placeholder="cuenta" 
+              required />
+      <div *ngIf="f.submitted && email.invalid">
+        <div *ngIf="email.errors.required">Se requiere Cuenta</div>
+      </div>
+
+          <label for="inputPassword" class="sr-only">Contraseña</label>
+          <input type="password" class="form-control" name="password" [(ngModel)]="form.password" #password="ngModel" placeholder="password" 
+                  required minlength="6" />
+
+          <div *ngIf="f.submitted && password.invalid">
+            <div *ngIf="password.errors.required">Se requiere contraseña</div>
+            <div *ngIf="password.errors.minlength">La contraseña debe tener al menos 6 caracteres</div>
+          </div>
+
+          <div class="checkbox mb-3">
+            <label>
+              <input type="checkbox" value="remember-me"> Recuérdame
+            </label>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Ingresar</button>
+          <div *ngIf="f.submitted && isLoginFailed" class="alert alert-danger">
+            Inicio de Sesión Fallida: {{errorMessage}}
+          </div>
+        </form>
+      </div>
+    </div>
+</html>

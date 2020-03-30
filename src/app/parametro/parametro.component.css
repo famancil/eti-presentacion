@@ -1,0 +1,28 @@
+.center {
+  margin:0 auto;
+  display:block;
+}
+
+.firstGrid{
+  border-style: solid;
+  border-width: 2px;
+  border-color: gray;
+}
+
+.secondGrid{
+  border-style: solid;
+  border-width: 2px;
+  border-color: gray;
+}
+
+.divacio{
+  height: 80px;
+  width: 100%;
+}
+
+h2{
+
+  color: #001A72;
+  text-transform: uppercase;
+  font-weight: bold;
+}

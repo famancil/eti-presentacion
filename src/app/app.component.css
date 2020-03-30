@@ -1,0 +1,8 @@
+.jumbotron{
+	padding: 2rem 1rem;
+}
+
+#page-content {
+		min-height: 100%;
+		min-width: 100%;
+}

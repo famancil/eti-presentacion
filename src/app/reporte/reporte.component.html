@@ -1,0 +1,91 @@
+<!--<ngx-spinner name="sp6" [fullScreen]="true" type="timer" size="large"></ngx-spinner>
+<div class="container mt-4">
+	
+	<div class="search">
+		<h3 class="ml-3 mt-2">Buscar Guías Despacho Hormigón</h3>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSubmit(searchForm.value)">
+  		
+      <div class="form-group row">
+        <div class="col-sm-5">Aplicar filtro por:</div>
+    		<div class="col-sm-7 input-group"> 
+      		<ng-select [items]="centros"                   
+                   placeholder="Seleccione un centro"
+                   [(ngModel)]="centro"
+                   formControlName="cod_centro"                   
+                   [multiple] = true>
+          </ng-select>
+        </div>
+  		</div>
+  		
+      
+      <div class="form-group row">
+        <div class="col-sm-5"> Rango de Fechas:</div>
+        <div class="col-sm-7 input-group">          
+
+          <input 
+            #myRangeInput
+            class="form-control" 
+            placeholder="dd/mm/yyyy - dd/mm/yyyy"
+            name="dp"
+            formControlName="rangeDate" 
+            ngbDatepicker 
+            [dayTemplate]="t"
+            [autoClose]="true"
+            [displayMonths]="2"
+            [maxDate]="maxDate"
+            [minDate]="minDate"
+            #d="ngbDatepicker">
+
+          <ng-template #t let-date="date" let-focused="focused">
+            <span class="custom-day"
+                [class.range]="isFrom(date) || isTo(date) || isInside(date) || isHovered(date)"
+                [class.faded]="isHovered(date) || isInside(date)"
+                (click)="onDateSelection(date)"
+                (mouseenter)="hoveredDate = date"
+                (mouseleave)="hoveredDate = null"
+                >
+            {{ date.day }}
+            </span>
+          </ng-template>
+          <div class="input-group-append">
+            <button class="btn btn-outline-primary calendar" (click)="d.toggle()" type="button">
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div align="center" style="display: block;">
+        <small >(Si no existe fecha, se toma el dia de hoy.)</small>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-12">
+           <button type="submit" class="btn btn-primary float-right">Generar Gráfico</button>
+        </div>
+      </div>
+       
+    </form>
+	</div>
+	
+</div>
+<br>
+
+<div>
+  <div>
+    <div style="display: block">
+      <canvas baseChart
+        [datasets]="barChartData"
+        [labels]="barChartLabels"
+        [options]="barChartOptions"
+        [plugins]="barChartPlugins"
+        [legend]="barChartLegend"
+        [chartType]="barChartType">
+      </canvas>
+    </div>
+  </div>
+</div>-->
+<p>
+  reporte works!
+</p>

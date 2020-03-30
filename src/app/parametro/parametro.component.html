@@ -1,0 +1,89 @@
+
+<div class="divacio">
+
+</div>
+  
+<ngx-spinner name="sp6" [fullScreen]="true" type="timer" size="large"></ngx-spinner>
+
+<div class="container-fluid">
+
+  <h2>{{title}}</h2>
+
+  <div class="container-fluid row">
+    <div class="col-6 firstGrid">
+      <h4 align="center">{{titleFirstGrid}}</h4>
+      <angular-slickgrid gridId="grid2"
+          [dataset]="dataset"
+          [columnDefinitions]="columnDefinitions"
+          [gridOptions]="gridOptions"
+          (sgOnCellChange)="onCellChanged($event.detail.eventData, $event.detail.args)"
+          (sgOnClick)="onCellClicked($event.detail.eventData, $event.detail.args)"
+          (onAngularGridCreated)="angularGridReady($event)"
+          gridHeight="350"
+          gridWidth="100%">
+      </angular-slickgrid>
+      <br>
+    </div>
+    <div class="col-5 ml-5 secondGrid">
+      <h5 align="center">{{titleSecondGrid}}</h5>
+      <angular-slickgrid gridId="grid3"
+          [dataset]="dataset2"
+          [columnDefinitions]="columnDefinitions2"
+          [gridOptions]="gridOptions2"
+          (sgOnClick)="onCellClicked2($event.detail.eventData,$event.detail.args)"
+          (sgOnCellChange)="onCellChanged2($event.detail.eventData, $event.detail.args)"
+          (onAngularGridCreated)="angularGridReady2($event)"
+          gridHeight="350"
+          gridWidth="100%">
+      </angular-slickgrid>
+      <button class="btn btn-lg btn-outline-primary center mt-1" [hidden]="!buttonVisible"  (click)="open(content)"><i class="fa fa-plus"></i></button>
+    </div>
+  </div>
+
+  <br>
+
+  <ng-template #content let-d="dismiss">
+    <form [formGroup]="excepcionForm" (ngSubmit)="onExcepcionSubmit(excepcionForm.value)">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Nueva Excepción</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">      
+        <div class="form-group row">
+          <label for="inputEmail3" class="col-sm-2 col-form-label">Cod Centro</label>
+          <div class="col-sm-10">
+            <ng-select [items]="arrayCodCentro"                   
+                    placeholder="Seleccione un centro"                   
+                    (ngModelChange)="onChangeCentro($event)"
+                    formControlName="cod_centro">
+            </ng-select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="inputPassword3" class="col-sm-2 col-form-label">Cod Planta</label>
+          <div class="col-sm-10">
+            <ng-select [(items)]="arrayCodPlanta"                   
+                    placeholder="Seleccione una planta"                   
+                    (ngModelChange)="onChangePlanta($event)"
+                    formControlName="cod_planta">
+            </ng-select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="inputPassword3" class="col-sm-2 col-form-label">Valor</label>
+          <div class="col-sm-10">
+          <input name="inputValor" type="text" class="form-control" placeholder="Valor" formControlName="valor">
+          </div>
+        </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-success">Guardar Datos</button>
+      </div>
+    </form>
+  </ng-template>
+</div>
+
+

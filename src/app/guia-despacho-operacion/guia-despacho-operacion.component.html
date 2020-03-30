@@ -1,0 +1,347 @@
+<html>
+<body>
+  <div class="correte">
+    <div class="divacio">
+      
+    </div>
+      <ngx-spinner name="sp6" [fullScreen]="true" type="timer" size="large"></ngx-spinner>
+      <div class="ggdd container-fluid mt-4">
+        <h3 class="ml-3 mt-2">Generación de Guías de Despacho</h3>  
+        <div class="col-sm-6 input-group"> 
+          <ng-select [items]="centros"                   
+                  placeholder="Seleccione un centro"
+                  [(ngModel)]="centro"
+                  [multiple]=true                   
+                  (ngModelChange)="onChangeCentro($event)">
+          </ng-select>
+        </div>
+        <br>
+        
+        <div *ngIf="isFilter">
+          <div class="col-sm-7 input-group">
+            <label>Filtrar por rango de Fecha:</label>          
+
+            <input 
+              #myRangeInput
+              class="form-control ml-4" 
+              placeholder="dd/mm/yyyy - dd/mm/yyyy"
+              name="dp"
+              [(ngModel)]="rangeDate" 
+              ngbDatepicker 
+              [dayTemplate]="t"
+              [autoClose]="true"
+              [displayMonths]="2"
+              [maxDate]="maxDate"
+              [minDate]="minDate"
+              #d="ngbDatepicker">
+
+            <ng-template #t let-date="date" let-focused="focused">
+              <span class="custom-day"
+                  [class.range]="isFrom(date) || isTo(date) || isInside(date) || isHovered(date)"
+                  [class.faded]="isHovered(date) || isInside(date)"
+                  (click)="onDateSelection(date)"
+                  (mouseenter)="hoveredDate = date"
+                  (mouseleave)="hoveredDate = null"
+                  >
+              {{ date.day }}
+              </span>
+            </ng-template>
+            <div class="input-group-append">
+              <button class="custom-btn btn-outline-primary calendar" (click)="d.toggle()" type="button">
+              </button>
+            </div>
+
+            <div class="filtrarb">
+              <button *ngIf="fromDate && toDate == null" type="submit" class="filtrar ml-3 btn-outline-primary" (click)="showHoras()">Por Horas</button>
+            </div>  
+
+            <div class="filtrarb">
+              <button *ngIf="fromDate && isFilterHour == false" type="submit" class="filtrar ml-3 btn-outline-primary" (click)="filtroRangDate()">Filtrar</button>
+            </div>          
+          </div>
+          
+          <br>
+          <div *ngIf="isFilterHour" class="col-sm-12 input-group"> 
+            <label>Filtrar por rango de Hora: 
+              <br>
+            <small>Desfase de hasta 1 día</small>
+            </label>
+              <ngb-timepicker class="ml-5" [(ngModel)]="startTime" [spinners]="true" ></ngb-timepicker>
+              <ngb-timepicker [(ngModel)]="endTime" class="ml-5" [spinners]="true" ></ngb-timepicker>
+            <div class="filtrarb">
+              <button type="submit" class="filtrar ml-5 btn-outline-primary" (click)="filtroHora()">Filtrar</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <ul id="contextMenu" style="display:none;position:absolute" >
+        <div *ngFor="let option of options" [ngSwitch]="option">
+          <li *ngSwitchCase="'Emitir'" (click)="selectOptionMenu(emitir,option)">
+          {{option}}</li>
+          <li *ngSwitchCase="'Ingresar Sello'" (click)="selectOptionMenu(ingresar_sello,option)">
+          {{option}}</li>
+          <li *ngSwitchCase="'Confirmar'" (click)="selectOptionMenu(ingresar_sello,option)">
+          {{option}}</li>
+          <li *ngSwitchCase="'Ver Historial'" (click)="selectOptionMenu(ver_historial,option)">
+          {{option}}</li>
+          <li *ngSwitchCase="'Ver Guia Electrónica'" (click)="selectOptionMenu(ver_guia_emitida,option)">
+          {{option}}</li>
+          <li *ngSwitchCase="'Anular'"  (click)="selectOptionMenu(anular,option)">
+            {{option}}</li>
+          <!--<div *ngIf="canAnularOrCancelar===true">
+            
+          </div>-->
+          <!--<li *ngSwitchCase="'Cancelar'" (click)="selectOptionMenu(cancelar,option)">
+          {{option}}</li>-->
+          <li *ngSwitchDefault (click)="selectOptionMenu(default,option)">
+          {{option}}</li>
+        </div>
+      </ul>
+      <angular-slickgrid gridId="grid2"
+      [columnDefinitions]="columnDefinitions"
+      [gridOptions]="gridOptions"
+      [dataset]="dataset"
+      gridHeight="500"
+      (onDataviewCreated)="dataviewReady($event)" 
+      (onGridCreated)="gridReady($event)">
+      </angular-slickgrid>
+
+      <br>
+
+      <ng-template #emitir let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+          
+        <div class="modal-body">
+          <form [formGroup]="emitirForm" (ngSubmit)="emitirGuia(emitirForm.value,modalContent.id)">
+            <div class="form-row">
+              <div class="form-group col-md-4" align="center">
+                <label for="ticker">Ticket:  <b class="ml-2">{{modalContent.nro_ticket}}</b></label>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="nroPedido">Nro. Pedido: <b class="ml-2">{{modalContent.nroPedido}}</b></label>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="nroPedido">Centro: <b class="ml-2">{{modalContent.ship_plant_loc}}</b></label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6" align="center">
+                <label for="inputAddress">Nombre Obra</label>
+                <p><b>{{modalContent.obra}}</b></p>
+              </div>
+              <div class="form-group col-md-6" align="center">
+                <label for="inputAddress2">Nombre Cliente</label>
+              <p><b>{{modalContent.cliente}}</b></p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4" align="center">
+                <label for="inputCity">Nro. Camion</label>
+                <p><b>{{modalContent.cod_camion}}</b></p>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="inputCity">Placa Patente</label>
+                <p><b>{{modalContent.patente}}</b></p>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="inputAddress">Operador Mixer</label>
+                <p><b>{{modalContent.driver}}</b></p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-12" align="center">
+                <label for="inputAddress">Numero Sello</label>
+                <input type="text" class="form-control" id="sello" formControlName="nroSello" (change)="changeSello(emitirForm.value.nroSello)" [(value)]="modalContent.num_sello" placeholder="numero" style="width: 30%;">
+                <small *ngIf='flagSelloRequerido===true'>* Requerido</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-primary"  [disabled]="(emitirForm.invalid && flagSelloRequerido === true) || !canEmitirOrSello" (click)="guardarGuia(emitirForm.value,modalContent.id)">Guardar</button>
+              <button type="submit" class="btn btn-outline-primary"  [disabled]="(emitirForm.invalid && flagSelloRequerido === true) || !canEmitirOrSello">Guardar y Emitir</button>
+            </div>
+          </form>
+        </div>    
+      </ng-template>
+
+      <ng-template #ingresar_sello let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+          
+        <div class="modal-body">
+          <form [formGroup]="emitirForm" (ngSubmit)="emitirGuia(emitirForm.value,modalContent.id)">
+            <div class="form-row">
+              <div class="form-group col-md-4" align="center">
+                <label for="ticker">Ticket:  <b class="ml-2">{{modalContent.nro_ticket}}</b></label>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="nroPedido">Nro. Pedido: <b class="ml-2">{{modalContent.nroPedido}}</b></label>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="nroPedido">Centro: <b class="ml-2">{{modalContent.ship_plant_loc}}</b></label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6" align="center">
+                <label for="inputAddress">Nombre Obra</label>
+                <p><b>{{modalContent.obra}}</b></p>
+              </div>
+              <div class="form-group col-md-6" align="center">
+                <label for="inputAddress2">Nombre Cliente</label>
+              <p><b>{{modalContent.cliente}}</b></p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4" align="center">
+                <label for="inputCity">Nro. Camion</label>
+                <p><b>{{modalContent.cod_camion}}</b></p>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="inputCity">Placa Patente</label>
+                <p><b>{{modalContent.patente}}</b></p>
+              </div>
+              <div class="form-group col-md-4" align="center">
+                <label for="inputAddress">Operador Mixer</label>
+                <p><b>{{modalContent.driver}}</b></p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-12" align="center">
+                <label for="inputAddress">Numero Sello</label>
+                <input type="text" class="form-control" id="sello" formControlName="nroSello" (change)="changeSello(emitirForm.value.nroSello)" [(value)]="modalContent.num_sello" placeholder="numero" style="width: 30%;">
+                <small *ngIf='flagSelloRequerido=== true'>* Requerido</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-outline-primary"  [disabled]="(emitirForm.invalid && flagSelloRequerido===true) || !canEmitirOrSello">Guardar y Emitir</button>
+            </div>
+          </form>
+        </div>    
+      </ng-template>
+
+      <ng-template #ver_historial let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        <h5 *ngIf="modalContent.folio">Folio: {{modalContent.folio}}</h5>
+        <h5 *ngIf="modalContent.folio">Ticket: {{modalContent.nro_ticket}}</h5>
+        <h5><b>Historial: </b></h5>
+          <angular-slickgrid gridId="gridHistorial"
+          [columnDefinitions]="columnDefinitionsHistorial"
+          [gridOptions]="gridOptionsHistorial"
+          [dataset]="datasetHistorial"
+          gridHeight="350"
+          (onDataviewCreated)="dataviewReadyHistorial($event)">
+          </angular-slickgrid>
+        </div>
+      </ng-template>
+
+      <ng-template #ver_guia_emitida let-c="close" let-d="dismiss">
+        <div class="modal-header m-emitida-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body vgemitida">
+          <div class="float-left mb-2">
+            <button type="button" class="btn btn-primary"
+            [ngClass]="{'blue' : toggle, 'gray': !toggle}"
+            (click)="onChangeSrc('electronica')">Guia<br> Electrónica</button>
+            <button type="button" class="btn btn-primary ml-1"
+            [ngClass]="{'blue' : !toggle, 'gray': toggle}" 
+            (click)="onChangeSrc('cedible')">Guia <br> Cedible</button>
+          </div>
+          <embed *ngIf="electronica===true" name="embedSrc" [src]="embedURL" height="610" type="application/pdf" style="width: 100%;" class="zoom">
+          <embed *ngIf="cedible===true" name="embedSrc" [src]="embedURL" height="610" type="application/pdf" style="width: 100%;" class="zoom">    
+        </div>    
+      </ng-template>
+
+      <ng-template #anular let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5 *ngIf="modalContent.folio">Folio: {{modalContent.folio}}</h5>
+          <form [formGroup]="anularForm" (ngSubmit)="anularGuia(anularForm.value,modalContent.id)">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label for="razones">Desea anular la guia? (Expresa sus razones):</label>
+                <textarea rows="4" cols="50" formControlName="razones"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-12">
+                <button type="submit" class="btn btn-outline-danger float-right" [disabled]="anularForm.invalid || !canAnularOrCancelar">Anular Guia</button>      
+              </div>
+            </div>      
+          </form>    
+        </div>
+      </ng-template>
+
+      <ng-template #cancelar let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+         <h5><b>Historial: </b></h5>
+          <ul class="list-inline">
+            <angular-slickgrid gridId="gridHistorial"
+             [columnDefinitions]="columnDefinitionsHistorial"
+             [gridOptions]="gridOptionsHistorial"
+             [dataset]="datasetHistorial"
+             gridHeight="350"
+             (onDataviewCreated)="dataviewReadyHistorial($event)">
+            </angular-slickgrid>
+          </ul>
+          <hr>
+          <form [formGroup]="cancelarForm" (ngSubmit)="cancelarSolicitud(cancelarForm.value,modalContent.id)">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label for="razones">Desea cancelar la solicitud? (Expresa sus razones):</label>
+                <textarea rows="4" cols="70" formControlName="razones"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-12">
+                 <button type="submit" class="btn btn-outline-danger float-right" [disabled]="cancelarForm.invalid || !canAnularOrCancelar">Cancelar Guia</button>      
+              </div>
+            </div>      
+          </form>
+        </div>
+      </ng-template>
+
+      <ng-template #default let-c="close" let-d="dismiss">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Guia en estado {{modalContent.estado.estado}}</h4>
+          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        <p>Funcionalidad en Desarrollo</p>   
+        </div>
+      </ng-template>
+    </div> 
+</body>
+</html>

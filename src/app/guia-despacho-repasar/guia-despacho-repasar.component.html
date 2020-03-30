@@ -1,0 +1,653 @@
+<div class="divacio">
+      
+</div>
+<ngx-spinner name="sp6" [fullScreen]="true" type="timer" size="large"></ngx-spinner>
+<div class="container-fluid btn-toolbar justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+
+	<!--<div class="btn-group mr-2" role="group" aria-label="First group">
+	    <button type="button" class="btn btn-primary ml-1"><i class="fa fa-arrow-left"></i> Anterior</button>
+	  </div>-->
+
+	<div class="btn-group mr-2" role="group" aria-label="Second group">
+	    <input type="search" name="search" [(ngModel)]="search" placeholder="N° de Folio" aria-label="Search">
+  		<button class="btn btn-success ml-1" (click)="searchFolio()"><i class="fa fa-search"></i> </button>
+	  </div>
+
+	<!--<div class="btn-group" role="group" aria-label="Third group">
+	    <button type="button" class="btn btn-primary">Siguiente <i class="fa fa-arrow-right"></i></button>
+	  </div>-->	
+</div>
+
+
+<div class="container-fluid row" style="margin-right: 0; margin-left: 0">
+
+	<div class="repasar mt-1 col-sm-6">
+		<div class="float-right mt-2" *ngIf="filename!='error.png' && filename!='null.pdf'"><h3>{{filename}}</h3></div>
+		<div class="float-left mb-2 mt-2">
+			<button type="button" class="btn btn-primary"
+			[ngClass]="{'blue' : toggle[0], 'gray': !toggle[0]}"
+			(click)="onChangeSrc('electronica')">Guia<br> Electrónica</button>
+			<button type="button" class="btn btn-primary ml-1"
+            [ngClass]="{'blue' : toggle[1], 'gray': !toggle[1]}" 
+            (click)="onChangeSrc('cedible')">Guia <br> Cedible</button>
+			<button type="button" class="btn btn-primary ml-1" 
+			[ngClass]="{'blue' : toggle[2], 'gray': !toggle[2]}"
+			(click)="onChangeSrc('escaneada')">Guia <br> Escaneada</button>
+		</div>
+		<br>
+		<!--<embed name="embedSrc" [src]="embedURL" height="1000" type="application/pdf" style="width: 100%">-->
+		<embed *ngIf="electronica===true" name="embedSrc" [src]="embedURL" height="850" type="application/pdf" style="width: 100%;" class="zoom">
+		<embed *ngIf="cedible===true" name="embedSrc" [src]="embedURL" height="850" type="application/pdf" style="width: 100%;" class="zoom">
+        <embed *ngIf="escaneada===true" name="embedSrc" [src]="embedURL"  type="application/pdf" style="width: 100%; height: 90%" class="zoom">
+	</div>
+
+	<div class="repasar ml-5 mt-1 col-sm-5">
+		<h3 class="mt-2">Repasar</h3>
+		<form [formGroup]="repasarForm" (ngSubmit)="onRepasarSubmit(repasarForm.value)">
+			<div class="container row">			
+				<table class="col-4" border="2">
+				  <tr>
+				    <td>Guía despacho <br> electrónica <br> N° {{nroGuiaDespacho}}</td>
+				  </tr>			  
+				</table>
+				
+
+				<div class="col-6">
+					<label>Folio coincidente?</label>
+					<div class="switch-toggle switch-3 switch-candy">
+					    <div class="radio"  *ngFor="let option of options" >
+							<input type="radio"
+				               id="{{option.id}}"
+				               formControlName="folios_ok"
+				               [value]="option.value"
+				               (change)="switchChange(option.value,true)"
+				               />
+					        <label class="labelSwitch" for="{{option.id}}">{{option.id}}
+					        </label>
+					    </div>
+					</div>
+				</div>
+
+			</div>
+		
+			<table class="table table-bordered table-sm xx-small" style="width: 100%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">OBSERVACIONES</th>
+			      <th scope="col">RECEPCIÓN CLIENTE</th>    
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td>
+			      	<div class="row">
+					    <div class="col">
+					      <textarea [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="observaciones" rows="3"></textarea>
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="checkbox" [attr.disabled]="disabledAll == true ? true : null" formControlName="solicitudNC">
+						  <label class="form-check-label" for="solicitudNC">
+						    Solicitud de NC
+						  </label>
+					    </div>
+					</div>	      	
+			      </td>
+			      <td>
+			      	<div class="row">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" (change) = "nombreValidator()"  formControlName="nombreCliente" placeholder="Nombre">				      	
+					    </div>				    
+					</div>
+					<div style="color: red; padding-top: 0.2rem" *ngIf="nombreRequired==true && disabledAll == false ">
+					    Requerido
+					</div>
+
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs mt-2" (change) = "rutValidator()" formControlName="rutCliente" placeholder="RUT" [ngClass]="{'black' : validRut, 'red': !validRut}">
+					      <small>Ejemplo: xxxxxxxxx</small>
+					    </div>
+					</div>
+					<div style="color: red; padding-top: 0.2rem" *ngIf="rutRequired && disabledAll == false ">
+					    Requerido
+					</div>
+					
+					<div class="row mt-2">
+					    <div class="col">
+					    	<label>Esta Firmado? </label>
+					      
+							<div class="switch-toggle switch-candy">
+							    <div class="radio"  *ngFor="let option of optionsFirmado" >
+									<input type="radio"
+						               id="{{option.id}}"
+						               formControlName="firmadoCliente"
+						               [value]="option.value"
+						               [attr.disabled]="disabledAll == true ? true : null"
+						               (change)="switchFirm(option.value)"
+						               />
+							        <label class="labelSwitch" for="{{option.id}}">{{option.id}}
+							        </label>
+							    </div>
+						    </div>
+						  <div style="color: red; padding-top: 0.2rem" *ngIf="repasarForm.hasError('required', 'firmadoCliente') && disabledAll == false ">
+						    Required
+						  </div>
+	   					</div>
+
+					</div>		      	
+			      </td>
+			    </tr>
+			  </tbody>
+			</table>
+
+			<table class="table table-bordered table-sm xx-small" style="width: 100%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <th colspan="3" style="text-align: center;">AUTORIZACIONES Y COBROS</th>   
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td width="20%">
+			      	<div class="row">
+					    <div class="col">
+					      <b> ADICIÓN DE AGUA </b>
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+			      		<div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="cantidadAdicAgua" placeholder="Litros" step="any">
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="solicitanteAdicAgua" placeholder="Solicitante">
+					    </div>				   
+					</div>	
+			      </td>
+			      <td width="40%">
+			      	<label>Esta Firmado? </label>
+			      	<div class="switch-toggle switch-candy">
+					    <div class="radio"  *ngFor="let option of optionsAdicAguaFirmado" >
+							<input type="radio"
+				               id="{{option.id}}"
+				               formControlName="firmadoAdicAgua"
+				               [value]="option.value"
+				               [attr.disabled]="disabledAll == true ? true : null"
+				               />
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='Si AdicAgua'">Si
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='n/a AdicAgua'">n/a
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='No AdicAgua'">No
+					        </label>
+					    </div>
+				    </div>
+			      </td>
+			    </tr>
+
+			    <tr class="table-secondary" >
+			      <td width="20%">
+			      	<div class="row">
+					    <div class="col">
+					      <b> ADICIÓN ADITIVO </b>
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+			      		<div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="cantidadAdicAditivo" placeholder="Litros" step="any">
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="solicitanteAdic" placeholder="Solicitante">
+					    </div>				   
+					</div>	
+			      </td>
+			      <td width="40%">
+			      	<label>Esta Firmado? </label>
+			      	<div class="switch-toggle switch-candy">
+					    <div class="radio"  *ngFor="let option of optionsAdicFirmado" >
+							<input type="radio"
+				               id="{{option.id}}"
+				               formControlName="firmadoAdicAditivo"
+				               [value]="option.value"
+				               [attr.disabled]="disabledAll == true ? true : null"
+				               />
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='Si Adic'">Si
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='n/a Adic'">n/a
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='No Adic'">No
+					        </label>
+					    </div>
+				    </div>
+			      </td>
+			    </tr>
+
+			    <tr class="table-secondary" >
+			      <td width="20%">
+			      	<div class="row">
+					    <div class="col">
+					      <b> TIPO ADITIVO </b>
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+					    <div class="col">
+					      <select class="form-control form-control-xs" formControlName="selectedTipoAditivo">
+					      	<option value=null>Elige</option>
+					        <!--<option>Aditivo 1</option>
+					        <option>Aditivo 2</option>
+					        <option>Aditivo 3</option>-->
+					        <option *ngFor="let tipo of aditivos" [value]="tipo">
+						      {{tipo}}
+						    </option>
+					      </select>
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="solicitanteTipoAditivo" placeholder="Solicitante">
+					    </div>				   
+					</div>		
+			      </td>
+			      <td width="40%">
+			      	<label>Esta Firmado? </label>
+			      	<div class="switch-toggle switch-candy">
+					    <div class="radio"  *ngFor="let option of optionsTipoAdicFirmado" >
+							<input type="radio"
+				               id="{{option.id}}"
+				               formControlName="firmadoTipoAditivo"
+				               [value]="option.value"
+				               [attr.disabled]="disabledAll == true ? true : null"
+				               />
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='Si TipoAdic'">Si
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='n/a TipoAdic'">n/a
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='No TipoAdic'">No
+					        </label>
+					    </div>
+				    </div>
+			      </td>
+			    </tr>
+
+			    <tr class="table-secondary" >
+			      <td width="20%">
+			      	<div class="row">
+					    <div class="col">
+					      <b> SOBRE ESTADIA CAMIÓN EN OBRA</b>
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+			      		<div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="tiempoCamionObra" placeholder="Minutos">
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="solicitanteCamionObra" placeholder="Solicitante">
+					    </div>				   
+					</div>			
+			      </td>
+			      <td width="40%">
+			      	<label>Esta Firmado? </label>
+			      	<div class="switch-toggle switch-candy">
+					    <div class="radio"  *ngFor="let option of optionsCamionObraFirmado" >
+							<input type="radio"
+				               id="{{option.id}}"
+				               formControlName="firmadoCamionObra"
+				               [value]="option.value"
+				               [attr.disabled]="disabledAll == true ? true : null"
+				               />
+				            <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='Si CamionObra'">Si
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='n/a CamionObra'">n/a
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='No CamionObra'">No
+					        </label>
+					    </div>
+				    </div>
+			      </td>
+			    </tr>
+
+			    <tr class="table-secondary" >
+			      <td width="20%">
+			      	<div class="row">
+					    <div class="col">
+					      <b> DISPOSICIÓN DE HORMIGÓN SOBRANTE</b>
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+			      		<div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="mCubicHormigon" placeholder="M3" step=any >
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="solicitanteHormigon" placeholder="Solicitante">
+					    </div>				   
+					</div>			
+			      </td>
+			      <td width="40%">
+			      	<label>Esta Firmado? </label>
+			      	<div class="switch-toggle switch-candy">
+					    <div class="radio"  *ngFor="let option of optionsHormigonFirmado" >
+							<input type="radio"
+				               id="{{option.id}}"
+				               formControlName="firmadoHormigon"
+				               [value]="option.value"
+				               [attr.disabled]="disabledAll == true ? true : null"
+				               />
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='Si Hormigon'">Si
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='n/a Hormigon'">n/a
+					        </label>
+					        <label class="labelSwitch" for="{{option.id}}" *ngIf="option.id==='No Hormigon'">No
+					        </label>
+					    </div>
+				    </div>
+			      </td>
+			    </tr>
+
+			  </tbody>
+			</table>
+
+			<!--<table class="table table-bordered table-sm" style="width: 100%">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">ADIC. AGUA</th>
+			      <th scope="col">ADIC. ADITIVO</th>
+			      <th scope="col">DISPOSICIÓN DE HORMIGON</th>		     
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td width="20%">
+			      	<div class="row">
+					    <div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="cantidadAdicAgua" placeholder="Cantidad">
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+					    <div class="col">
+					      <select class="form-control" formControlName="selectedAdicAditivo">
+					      	<option value=null>Elige</option>
+					        <option>Aditivo 1</option>
+					        <option>Aditivo 2</option>
+					        <option>Aditivo 3</option>
+					      </select>
+					    </div>
+					    <div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="cantidadAdicAditivo" placeholder="Cantidad">
+					    </div>
+					</div>     	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+					    <div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="mCubicHormigon" placeholder="M3">
+					    </div>
+					</div>
+					<div class="row mt-1">
+					    <div class="col">
+					      <textarea rows="2" type="text" [attr.disabled]="disabledAll == true ? true : null" formControlName="destinoFinalHormigon" class="form-control" placeholder="Destino Final"></textarea>
+					    </div>
+					</div>       	
+			      </td>
+			    </tr>
+
+			    <tr class="table-secondary" >
+			      <td colspan="2">
+			      	<div class="row">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="solicitanteAdic" placeholder="Solicitante">
+					    </div>
+					    <div class="col">
+					      <input type="checkbox" [attr.disabled]="disabledAll == true ? true : null" formControlName="noFirmadoAdic">
+						  <label class="form-check-label" for="noFirmadoAdic">
+						   No Firmado
+						  </label>
+					    </div>
+					</div>       	
+			      </td>
+			      <td width="40%">
+			      	<div class="row">
+					    <div class="col">
+					      <textarea type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="nombreHormigon" placeholder="Nombre"></textarea>
+					    </div>
+					    <div class="col">
+					      <input type="checkbox" [attr.disabled]="disabledAll == true ? true : null" formControlName="noFirmado">
+						  <label class="form-check-label" for="noFirmado">
+						   No Firmado
+						  </label>
+					    </div>
+					</div>      	
+			      </td>
+			    </tr>
+			  </tbody>
+			</table>-->
+
+			<table class="table table-bordered table-sm xx-small" style="width: 100%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <!--<th scope="col">BOMBEO</th>-->
+			      <th scope="col">LABORATORIO</th>
+			      <!--<th scope="col">MUESTRA</th>-->     
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <!--<td width="50%">
+			      	<div class="row">
+					    <div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="cantidadBombeo" placeholder="Cantidad">
+					    </div>
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="codBombeo" placeholder="COD. Bomba">
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <select formControlName="selectedProveedor" class="form-control">
+					      	<option value=null>Seleccione</option>
+					        <option>Proveedor 1</option>
+					        <option>Proveedor 2</option>
+					        <option>Proveedor 3</option>
+					      </select>
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="reportBombeo" placeholder="Report">
+					    </div>
+					</div>		      	
+			      </td>-->
+			      <td width="30%">
+			      	<div class="row">
+					    <div class="col ml-4">
+					      <input class="form-check-input" [attr.disabled]="disabledAll == true ? true : null" type="checkbox" formControlName="muestraPropia">
+						  <label class="form-check-label" for="muestraPropia">
+						    Muestra Propia
+						  </label>
+					    </div>
+					    <div class="col ml-4">
+					      <input class="form-check-input" [attr.disabled]="disabledAll == true ? true : null" type="checkbox" formControlName="muestraCliente">
+						  <label class="form-check-label" for="muestraCliente">
+						    Muestra Cliente
+						  </label>
+					    </div>
+					</div>     
+			      	<div class="row mt-2">
+					    <div class="col">
+					      <select formControlName="selectedLaboratorio" class="form-control form-control-xs">
+					      	<!--<option value=null>Laboratorio</option>
+					        <option>Laboratorio 1</option>
+					        <option>Laboratorio 2</option>
+					        <option>Laboratorio 3</option>
+					        <option>Otro</option>-->
+					        <option value=null>Elige</option>
+					        <option *ngFor="let lab of laboratorios" [value]="lab">
+						      {{lab}}
+						    </option>
+					      </select>
+					      <!--<input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="selectedLaboratorio" placeholder="Laboratorio">-->
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="numeroMuestra" placeholder="N° Muestra">
+					    </div>
+					</div>
+					<div class="row mt-2">
+					    <div class="col">
+					      <input type="number" [attr.disabled]="disabledAll == true ? true : null" class="form-control form-control-xs" formControlName="asentamientoCono" placeholder="Asentamiento Cono" step="any">
+					    </div>
+					</div>		      	
+			      </td>
+			      <!--<td width="20%">
+			      	<div class="row">
+					    <div class="col ml-4">
+					      <input class="form-check-input" [attr.disabled]="disabledAll == true ? true : null" type="checkbox" formControlName="camionDevuelto">
+						  <label class="form-check-label" for="camionDevuelto">
+						    Camion devuelto
+						  </label>
+					    </div>
+					</div>
+					<div class="row">
+					    <div class="col ml-4">
+					      <input class="form-check-input" [attr.disabled]="disabledAll == true ? true : null" type="checkbox" formControlName="camionDevuelto">
+						  <label class="form-check-label" for="camionDevuelto">
+						    Camion devuelto
+						  </label>
+					    </div>
+					</div>        	
+			      </td>-->
+			    </tr>
+			  </tbody>
+			</table>
+
+			<table class="table table-bordered table-sm xx-small" style="width: 10%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">HORA CARGA</th>
+			      <th scope="col">SALIDA PLANTA</th>
+			      <th scope="col">LLEGADA OBRA</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td>
+			      	<ngb-timepicker formControlName="horaCarga" [readonlyInputs]="disabledAll && disabledAllTime" [spinners]="false" (change) = "timeValidator('horaCarga',repasarForm.value.horaCarga)" ></ngb-timepicker>
+			      	<small *ngIf="!validTime[0]" class="red" >Hora incongruente, favor revisar</small>
+			      </td>
+			      <td>
+			      	<ngb-timepicker formControlName="salidaPlanta" [readonlyInputs]="disabledAll && disabledAllTime" [spinners]="false" (change) = "timeValidator('salidaPlanta',repasarForm.value.salidaPlanta)"></ngb-timepicker>
+			      	<small *ngIf="!validTime[1]" class="red" >Hora incongruente, favor revisar</small>
+			      </td>
+			      <td>
+			      	<ngb-timepicker formControlName="llegadaObra" [readonlyInputs]="disabledAll && disabledAllTime" [spinners]="false" (change) = "timeValidator('llegadaObra',repasarForm.value.llegadaObra)"></ngb-timepicker>
+			      	<small *ngIf="!validTime[2]" class="red" >Hora incongruente, favor revisar</small>
+			      </td>
+			    </tr>
+			    
+			  </tbody>
+			</table>
+
+			<table class="table table-bordered table-sm xx-small" style="width: 10%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">INICIO DESCARGA</th>
+			      <th scope="col">SALIDA OBRA</th>
+			      <th scope="col">INGRESO PLANTA</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td>
+			      	<ngb-timepicker formControlName="inicioDescarga" [readonlyInputs]="disabledAll && disabledAllTime" [spinners]="false" (change) = "timeValidator('inicioDescarga',repasarForm.value.inicioDescarga)"></ngb-timepicker>
+			      	<small *ngIf="!validTime[3]" class="red" >Hora incongruente, favor revisar</small>
+			      </td>
+			      <td>
+			      	<ngb-timepicker formControlName="salidaObra" [readonlyInputs]="disabledAll && disabledAllTime" [spinners]="false" (change) = "timeValidator('salidaObra',repasarForm.value.salidaObra)"></ngb-timepicker>
+			      	<small *ngIf="!validTime[4]" class="red" >Hora incongruente, favor revisar</small>
+			      </td>
+			      <td>
+			      	<ngb-timepicker formControlName="ingresoPlanta" [readonlyInputs]="disabledAll && disabledAllTime" [spinners]="false" (change) = "timeValidator('ingresoPlanta',repasarForm.value.ingresoPlanta)"></ngb-timepicker>
+			      	<small *ngIf="!validTime[5]" class="red" >Hora incongruente, favor revisar</small>
+			      </td>
+			    </tr>
+			    
+			  </tbody>
+			</table>
+
+
+			<table class="table table-bordered table-sm xx-small" style="width: 100%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">USO INTERINO</th>		     
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td>
+			      	<!--<label for="emailInterino">Email para envio de guia de obra</label>-->
+			      	<div class="row">		      		
+					    <!--<div class="col">				      
+	    				  <input type="text" [attr.disabled]="disabledAll == true ? true : null" class="form-control" formControlName="emailInterino" placeholder="Email" style="width: 80%">
+					    </div>-->
+					    <div class="col ml-4">
+					      <input class="form-check-input" [attr.disabled]="disabledAll == true ? true : null" type="checkbox" formControlName="camionDevuelto">
+						  <label class="form-check-label" for="camionDevuelto">
+						    Camion devuelto
+						  </label>
+					    </div>
+					</div>		      	
+			      </td>
+			    </tr>
+			  </tbody>
+			</table>
+
+			<table class="table table-bordered table-sm xx-small" style="width: 100%;">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">REPASADO POR:</th>
+			      <th scope="col">FECHA ACTUALIZACIÓN</th>		     
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-secondary" >
+			      <td>
+			      	{{name}} 	
+			      </td>
+			      <td>
+			      	{{today}}      	
+			      </td>
+			    </tr>
+			  </tbody>
+			</table>
+			
+			<div class="float-right mt-2">
+				<button type="button" class="btn btn-primary ml-1" routerLink="/guiasDespacho" routerLinkActive="active" ><i class="fa fa-arrow-left"></i> Volver</button>
+				<button *ngIf="canRepasar && repasarForm.value.folios_ok !== 0" type="submit" class="btn btn-primary ml-1" [disabled]="repasarForm.invalid || nombreRequired || rutRequired || checkTime">Guardar Cambios</button>
+
+				<button *ngIf="canRepasar && repasarForm.value.folios_ok === 0" type="submit" class="btn btn-primary ml-1">Guardar Cambios</button>
+			</div>
+		</form>
+	</div>
+</div>
+
