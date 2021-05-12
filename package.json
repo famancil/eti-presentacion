@@ -26,7 +26,7 @@
     "@types/jquery": "^2.0.54",
     "angular-slickgrid": "^2.13.1",
     "bootstrap": "^4.3.1",
-    "chart.js": "^2.9.2",
+    "chart.js": "^2.9.4",
     "chartjs-plugin-datalabels": "^0.7.0",
     "classlist.js": "^1.1.20150312",
     "coffeescript": "^1.12.7",
